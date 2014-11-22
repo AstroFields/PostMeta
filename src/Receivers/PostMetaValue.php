@@ -48,7 +48,7 @@ class PostMetaValue
 	/**
 	 * Retrieve (optional) `attributes`
 	 * If the `value` stays empty, only the `key` gets assigned
-	 * Use this for i.e. `required`
+	 * Use this for i.e. `required`,  `disabled`, etc.
 	 * @return string
 	 */
 	public function getAttributes()
