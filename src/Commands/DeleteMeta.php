@@ -4,9 +4,7 @@ namespace WCM\AstroFields\PostMeta\Commands;
 
 use WCM\AstroFields\Core\Commands\ContextAwareInterface;
 
-class DeleteMeta
-	implements \SplObserver,
-			   ContextAwareInterface
+class DeleteMeta implements \SplObserver, ContextAwareInterface
 {
 	/** @type string */
 	private $context = 'save_post_{type}';
@@ -33,6 +31,7 @@ class DeleteMeta
 		$updated = empty( $_POST[ $data['key'] ] )
 			? $this->delete()
 			: false;
+		// @TODO Do something with the return value
 	}
 
 	public function setContext( $context )

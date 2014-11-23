@@ -6,10 +6,10 @@ use WCM\AstroFields\Core\Receivers\EntityProviderInterface;
 use WCM\AstroFields\Core\Receivers\AttributeAwareInterface;
 use WCM\AstroFields\Core\Receivers\OptionAwareInterface;
 
-class PostMetaValue
-	implements EntityProviderInterface,
-			   AttributeAwareInterface,
-			   OptionAwareInterface
+class PostMetaValue implements
+	EntityProviderInterface,
+	AttributeAwareInterface,
+	OptionAwareInterface
 {
 	/** @type Array */
 	private $data;
