@@ -2,12 +2,12 @@
 
 namespace WCM\AstroFields\PostMeta\Receivers;
 
-use WCM\AstroFields\Core\Receivers\FieldInterface;
+use WCM\AstroFields\Core\Receivers\EntityProviderInterface;
 use WCM\AstroFields\Core\Receivers\AttributeAwareInterface;
 use WCM\AstroFields\Core\Receivers\OptionAwareInterface;
 
 class PostMetaValue
-	implements FieldInterface,
+	implements EntityProviderInterface,
 			   AttributeAwareInterface,
 			   OptionAwareInterface
 {
