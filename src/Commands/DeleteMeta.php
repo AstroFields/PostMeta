@@ -2,9 +2,18 @@
 
 namespace WCM\AstroFields\PostMeta\Commands;
 
-use WCM\AstroFields\Core\Commands\ContextAwareInterface;
+use WCM\AstroFields\Core;
 
-class DeleteMeta implements \SplObserver, ContextAwareInterface
+/**
+ * Class DeleteMeta
+ * This command deletes post meta values when the value
+ * is not present in the `$_POST` array anymore.
+ * WP Core does automatic clean up of meta values when
+ * a post is deleted, so this Command is only meant to be used
+ * when you do not want to have empty meta data.
+ * @package WCM\AstroFields\PostMeta\Commands
+ */
+class DeleteMeta implements \SplObserver, Core\Commands\ContextAwareInterface
 {
 	/** @type string */
 	private $context = 'save_post_{type}';

@@ -2,14 +2,16 @@
 
 namespace WCM\AstroFields\PostMeta\Receivers;
 
-use WCM\AstroFields\Core\Receivers\EntityProviderInterface;
-use WCM\AstroFields\Core\Receivers\AttributeAwareInterface;
-use WCM\AstroFields\Core\Receivers\OptionAwareInterface;
+use WCM\AstroFields\Core;
 
+/**
+ * Class PostMetaValue
+ * @package WCM\AstroFields\PostMeta\Receivers
+ */
 class PostMetaValue implements
-	EntityProviderInterface,
-	AttributeAwareInterface,
-	OptionAwareInterface
+	Core\Receivers\EntityProviderInterface,
+	Core\Receivers\AttributeAwareInterface,
+	Core\Receivers\OptionAwareInterface
 {
 	/** @type Array */
 	private $data;

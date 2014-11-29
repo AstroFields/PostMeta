@@ -2,17 +2,12 @@
 
 namespace WCM\AstroFields\PostMeta\Commands;
 
-use WCM\AstroFields\Core;
+use WCM\AstroFields\Core\Commands\ContextAwareInterface;
 
-/**
- * Class SaveMeta
- * This Command performs the initial saving of a meta value.
- * @package WCM\AstroFields\PostMeta\Commands
- */
-class SaveMeta implements \SplObserver, Core\Commands\ContextAwareInterface
+class UpdateMeta implements \SplObserver, ContextAwareInterface
 {
 	/** @type string */
-	private $context = 'save_post_{type}';
+	private $context = 'edit_post';
 
 	/** @type Array */
 	private $data;
@@ -41,12 +36,7 @@ class SaveMeta implements \SplObserver, Core\Commands\ContextAwareInterface
 
 		$updated = $this->save();
 		$notice  = $this->check( $updated );
-
-		# @TODO Do something with the notice. Example:
-		if ( ! isset( $_POST['message'] ) )
-			$_POST['message'] = $notice;
-		else
-			$_POST['message'] .= "<br>{$notice}";
+		# @TODO Do something with the notice
 	}
 
 	public function setContext( $context )
@@ -63,17 +53,17 @@ class SaveMeta implements \SplObserver, Core\Commands\ContextAwareInterface
 
 	public function save()
 	{
-		return add_post_meta(
+		return update_post_meta(
 			$this->postID,
 			$this->data['key'],
-			$_POST[ $this->data['key'] ],
-			true
+			$_POST[ $this->data['key'] ]
 		);
 	}
 
 	public function check( $updated )
 	{
-		/** @var \WP_Error|mixed $updated */
+		$notice = '';
+		/** @var \WP_Error $updated */
 		if ( is_wp_error( $updated ) )
 		{
 			$notice = sprintf(
@@ -84,24 +74,18 @@ class SaveMeta implements \SplObserver, Core\Commands\ContextAwareInterface
 		}
 		elseif ( is_int( $updated ) )
 		{
-			$notice = sprintf(
-				'New value added for: <code>%s</code>',
-				$this->data['key']
-			);
+			esc_url( add_query_arg( 'message', 5, get_permalink( $this->postID ) ) );
+			$notice = "New value added for: {$this->data['key']}";
 		}
 		elseif ( ! $updated )
 		{
-			$notice = sprintf(
-				'Post meta <code>%s</code> not updated',
-				$this->data['key']
-			);
+			esc_url( add_query_arg( 'message', 6, get_permalink( $this->postID ) ) );
+			$notice = 'Post meta not updated';
 		}
 		else
 		{
-			$notice = sprintf(
-				'Post Meta <code>%s</code> updated',
-				$this->data['key']
-			);
+			esc_url( add_query_arg( 'message', 7, get_permalink( $this->postID ) ) );
+			$notice = 'Post Meta updated';
 		}
 
 		return $notice;
