@@ -2,51 +2,52 @@
 
 namespace WCM\AstroFields\PostMeta\Commands;
 
-use WCM\AstroFields\Core;
+use WCM\AstroFields\Core\Commands;
+use WCM\AstroFields\Core\Mediators\EntityInterface;
 
 /**
  * Class SaveMeta
  * This Command performs the initial saving of a meta value.
  * @package WCM\AstroFields\PostMeta\Commands
  */
-class SaveMeta implements \SplObserver, Core\Commands\ContextAwareInterface
+class SaveMeta implements
+	Commands\CommandInterface,
+	Commands\ContextAwareInterface
 {
 	/** @type string */
 	private $context = 'save_post_{type}';
 
-	/** @type Array */
-	private $data;
-
-	/** @type int */
-	private $postID;
-
-	/** @type \WP_Post */
-	private $post;
-
 	/**
-	 * @param \SplSubject $subject
-	 * @param array       $data
+	 * @param int             $id
+	 * @param \WP_Post        $post
+	 * @param bool            $updated
+	 * @param EntityInterface $entity
+	 * @param array           $data
+	 * @return mixed|void
 	 */
-	public function update( \SplSubject $subject, Array $data = null )
+	public function update(
+		$id = 0,
+		\WP_Post $post = null,
+		$updated = false,
+		EntityInterface $entity = null,
+		Array $data = array()
+		)
 	{
-		$this->data   = $data;
-		$this->postID = $data['args'][0];
-		$this->post   = $data['args'][1];
-
+		$key = $entity->getKey();
 		if (
-			! isset( $_POST[ $data['key'] ] )
-			OR empty( $_POST[ $data['key'] ] )
+			! isset( $_POST[ $key ] )
+			OR empty( $_POST[ $key ] )
 		)
 			return;
 
-		$updated = $this->save();
-		$notice  = $this->check( $updated );
+		$updated = $this->save( $id, $key );
+		$notice  = $this->check( $updated, $key );
 
 		# @TODO Do something with the notice. Example:
-		if ( ! isset( $_POST['message'] ) )
+		/*if ( ! isset( $_POST['message'] ) )
 			$_POST['message'] = $notice;
 		else
-			$_POST['message'] .= "<br>{$notice}";
+			$_POST['message'] .= "<br>{$notice}";*/
 	}
 
 	public function setContext( $context )
@@ -61,48 +62,26 @@ class SaveMeta implements \SplObserver, Core\Commands\ContextAwareInterface
 		return $this->context;
 	}
 
-	public function save()
+	public function save( $id, $key )
 	{
-		return add_post_meta(
-			$this->postID,
-			$this->data['key'],
-			$_POST[ $this->data['key'] ],
-			true
-		);
+		return add_post_meta( $id, $key, $_POST[ $key ], true );
 	}
 
-	public function check( $updated )
+	public function check( $updated, $key )
 	{
+		$notice = sprintf( 'Post Meta <code>%s</code> updated', $key );
 		/** @var \WP_Error|mixed $updated */
 		if ( is_wp_error( $updated ) )
 		{
-			$notice = sprintf(
-				'%s: %s',
+			$notice = sprintf( '%s: %s',
 				$updated->get_error_code(),
 				$updated->get_error_message()
 			);
 		}
 		elseif ( is_int( $updated ) )
-		{
-			$notice = sprintf(
-				'New value added for: <code>%s</code>',
-				$this->data['key']
-			);
-		}
+			$notice = sprintf( 'New value added for: <code>%s</code>', $key );
 		elseif ( ! $updated )
-		{
-			$notice = sprintf(
-				'Post meta <code>%s</code> not updated',
-				$this->data['key']
-			);
-		}
-		else
-		{
-			$notice = sprintf(
-				'Post Meta <code>%s</code> updated',
-				$this->data['key']
-			);
-		}
+			$notice = sprintf( 'Post meta <code>%s</code> not updated', $key );
 
 		return $notice;
 	}

@@ -9,7 +9,7 @@ use WCM\AstroFields\Core;
  * This Command performs the initial saving of a meta value.
  * @package WCM\AstroFields\PostMeta\Commands
  */
-class Messages implements \SplObserver, Core\Commands\ContextAwareInterface
+class Messages implements Core\Commands\ContextAwareInterface
 {
 	/** @type string */
 	private $context = 'redirect_post_location';

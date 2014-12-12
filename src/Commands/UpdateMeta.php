@@ -2,40 +2,42 @@
 
 namespace WCM\AstroFields\PostMeta\Commands;
 
-use WCM\AstroFields\Core\Commands\ContextAwareInterface;
+use WCM\AstroFields\Core\Commands;
+use WCM\AstroFields\Core\Mediators\EntityInterface;
 
-class UpdateMeta implements \SplObserver, ContextAwareInterface
+class UpdateMeta implements
+	Commands\CommandInterface,
+	Commands\ContextAwareInterface
 {
 	/** @type string */
 	private $context = 'edit_post';
 
-	/** @type Array */
-	private $data;
-
-	/** @type int */
-	private $postID;
-
-	/** @type \WP_Post */
-	private $post;
-
 	/**
-	 * @param \SplSubject $subject
-	 * @param array       $data
+	 * @param int             $id
+	 * @param \WP_Post        $post
+	 * @param bool            $updated
+	 * @param EntityInterface $entity
+	 * @param array           $data
+	 * @return mixed|void
 	 */
-	public function update( \SplSubject $subject, Array $data = null )
+	public function update(
+		$id = 0,
+		\WP_Post $post = null,
+		$updated = false,
+		EntityInterface $entity = null,
+		Array $data = array()
+		)
 	{
-		$this->data   = $data;
-		$this->postID = $data['args'][0];
-		$this->post   = $data['args'][1];
+		$key = $entity->getKey();
 
 		if (
-			! isset( $_POST[ $data['key'] ] )
-			OR empty( $_POST[ $data['key'] ] )
+			! isset( $_POST[ $key ] )
+			OR empty( $_POST[ $key ] )
 		)
 			return;
 
-		$updated = $this->save();
-		$notice  = $this->check( $updated );
+		$updated = $this->save( $id, $key );
+		$notice  = $this->check( $updated, $id, $key );
 		# @TODO Do something with the notice
 	}
 
@@ -51,18 +53,14 @@ class UpdateMeta implements \SplObserver, ContextAwareInterface
 		return $this->context;
 	}
 
-	public function save()
+	public function save( $id, $key )
 	{
-		return update_post_meta(
-			$this->postID,
-			$this->data['key'],
-			$_POST[ $this->data['key'] ]
-		);
+		return update_post_meta( $id, $key, $_POST[ $key ] );
 	}
 
-	public function check( $updated )
+	public function check( $updated, $id, $key )
 	{
-		$notice = '';
+		$notice = 'Post Meta updated';
 		/** @var \WP_Error $updated */
 		if ( is_wp_error( $updated ) )
 		{
@@ -74,18 +72,17 @@ class UpdateMeta implements \SplObserver, ContextAwareInterface
 		}
 		elseif ( is_int( $updated ) )
 		{
-			esc_url( add_query_arg( 'message', 5, get_permalink( $this->postID ) ) );
-			$notice = "New value added for: {$this->data['key']}";
+			esc_url( add_query_arg( 'message', 5, get_permalink( $id ) ) );
+			$notice = "New value added for: {$key}";
 		}
 		elseif ( ! $updated )
 		{
-			esc_url( add_query_arg( 'message', 6, get_permalink( $this->postID ) ) );
+			esc_url( add_query_arg( 'message', 6, get_permalink( $id ) ) );
 			$notice = 'Post meta not updated';
 		}
 		else
 		{
-			esc_url( add_query_arg( 'message', 7, get_permalink( $this->postID ) ) );
-			$notice = 'Post Meta updated';
+			esc_url( add_query_arg( 'message', 7, get_permalink( $id ) ) );
 		}
 
 		return $notice;

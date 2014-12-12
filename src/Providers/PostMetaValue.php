@@ -1,17 +1,17 @@
 <?php
 
-namespace WCM\AstroFields\PostMeta\Receivers;
+namespace WCM\AstroFields\PostMeta\Providers;
 
-use WCM\AstroFields\Core;
+use WCM\AstroFields\Core\Providers;
 
 /**
  * Class PostMetaValue
  * @package WCM\AstroFields\PostMeta\Receivers
  */
 class PostMetaValue implements
-	Core\Receivers\EntityProviderInterface,
-	Core\Receivers\AttributeAwareInterface,
-	Core\Receivers\OptionAwareInterface
+	Providers\EntityProviderInterface,
+	Providers\AttributeAwareInterface,
+	Providers\OptionAwareInterface
 {
 	/** @type Array */
 	private $data;
@@ -62,7 +62,7 @@ class PostMetaValue implements
 		foreach ( $this->data['attributes'] as $key => $val )
 		{
 			$result .= " {$key}";
-			! empty( $val ) AND $result .= "='{$val}'";
+			! empty( $val ) AND $result .= sprintf( '="%s"', $val );
 		}
 
 		return $result;

@@ -2,7 +2,8 @@
 
 namespace WCM\AstroFields\PostMeta\Commands;
 
-use WCM\AstroFields\Core;
+use WCM\AstroFields\Core\Commands;
+use WCM\AstroFields\Core\Mediators\EntityInterface;
 
 /**
  * Class DeleteMeta
@@ -13,32 +14,31 @@ use WCM\AstroFields\Core;
  * when you do not want to have empty meta data.
  * @package WCM\AstroFields\PostMeta\Commands
  */
-class DeleteMeta implements \SplObserver, Core\Commands\ContextAwareInterface
+class DeleteMeta implements
+	Commands\CommandInterface,
+	Commands\ContextAwareInterface
 {
 	/** @type string */
 	private $context = 'save_post_{type}';
 
-	/** @type Array */
-	private $data;
-
-	/** @type int */
-	private $postID;
-
-	/** @type \WP_Post */
-	private $post;
-
 	/**
-	 * @param \SplSubject $subject
-	 * @param array       $data
+	 * @param int             $id
+	 * @param \WP_Post        $post
+	 * @param bool            $updated
+	 * @param EntityInterface $entity
+	 * @param array           $data
+	 * @return mixed|void
 	 */
-	public function update( \SplSubject $subject, Array $data = null )
+	public function update(
+		$id = 0,
+		\WP_Post $post = null,
+		$updated = false,
+		EntityInterface $entity = null,
+		Array $data = array()
+		)
 	{
-		$this->data   = $data;
-		$this->postID = $data['args'][0];
-		$this->post   = $data['args'][1];
-
-		$updated = empty( $_POST[ $data['key'] ] )
-			? $this->delete()
+		$updated = empty( $_POST[ $entity->getKey() ] )
+			? $this->delete( $id, $entity->getKey() )
 			: false;
 		// @TODO Do something with the return value
 	}
@@ -55,11 +55,8 @@ class DeleteMeta implements \SplObserver, Core\Commands\ContextAwareInterface
 		return $this->context;
 	}
 
-	public function delete()
+	public function delete( $id, $key )
 	{
-		return delete_post_meta(
-			$this->postID,
-			$this->data['key']
-		);
+		return delete_post_meta( $id, $key );
 	}
 }
