@@ -31,7 +31,8 @@
     },
     "autoload"    : {
         "psr-4" : {
-            "WCM\\AstroFields\\PostMeta\\" : "src/"
+            "WCM\\AstroFields\\PostMeta\\" : "src/",
+            "Astro\\"                      : "src/Facades/"
         }
     },
     "config": {
